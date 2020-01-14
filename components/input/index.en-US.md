@@ -22,6 +22,7 @@ A basic widget for getting the user input is a text field. Keyboard and mouse ca
 | defaultValue | The initial input content | string |  |
 | disabled | Whether the input is disabled. | boolean | false |
 | id | The ID for input | string |  |
+| maxLength | max length | number |  |
 | prefix | The prefix icon for the Input. | string\|ReactNode |  |
 | size | The size of the input box. Note: in the context of a form, the `large` size is used. Available: `large` `default` `small` | string | `default` |
 | suffix | The suffix icon for the Input. | string\|ReactNode |  |
@@ -37,25 +38,24 @@ The rest of the props of Input are exactly the same as the original [input](http
 
 ### Input.TextArea
 
-> If you are using `antd@<2.12`, please use `Input[type=textarea]`.
-
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| autosize | Height autosize feature, can be set to `true|false` or an object `{ minRows: 2, maxRows: 6 }` | boolean\|object | false |
+| autoSize | Height autosize feature, can be set to `true|false` or an object `{ minRows: 2, maxRows: 6 }`. | boolean\|object | false |
 | defaultValue | The initial input content | string |  |
 | value | The input content value | string |  |
 | onPressEnter | The callback function that is triggered when Enter key is pressed. | function(e) |  |
+| allowClear | allow to remove input content with clear icon | boolean |  |
+| onResize | The callback function that is triggered when resize | function({ width, height }) |  |
 
 The rest of the props of `Input.TextArea` are the same as the original [textarea](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea).
 
 #### Input.Search
 
-`Added in 2.5.0`
-
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
 | enterButton | to show an enter button after input. This prop is conflict with addon. | boolean\|ReactNode | false |
-| onSearch | The callback function that is triggered when you click on the search-icon or press Enter key. | function(value, event) |  |
+| onSearch | The callback function triggered when you click on the search-icon, the clear-icon or press the Enter key. | function(value, event) |  |
+| loading | Search box with loading. | boolean |  |
 
 Supports all props of `Input`.
 
@@ -66,14 +66,14 @@ Supports all props of `Input`.
 | compact | Whether use compact style | boolean | false |
 | size | The size of `Input.Group` specifies the size of the included `Input` fields. Available: `large` `default` `small` | string | `default` |
 
-```html
+```jsx
 <Input.Group>
   <input />
   <input />
 </Input.Group>
 ```
 
-#### Input.Password (Added in 3.12.0)
+#### Input.Password
 
 | Property         | Description                | Type    | Default |
 | ---------------- | -------------------------- | ------- | ------- |

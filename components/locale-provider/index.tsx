@@ -1,8 +1,9 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import * as moment from 'moment';
-import interopDefault from '../_util/interopDefault';
 import { ModalLocale, changeConfirmLocale } from '../modal/locale';
+import warning from '../_util/warning';
+
+export const ANT_MARK = 'internalMark';
 
 export interface Locale {
   locale: string;
@@ -21,21 +22,10 @@ export interface Locale {
 export interface LocaleProviderProps {
   locale: Locale;
   children?: React.ReactNode;
-}
-
-function setMomentLocale(locale: Locale) {
-  if (locale && locale.locale) {
-    interopDefault(moment).locale(locale.locale);
-  } else {
-    interopDefault(moment).locale('en');
-  }
+  _ANT_MARK__?: string;
 }
 
 export default class LocaleProvider extends React.Component<LocaleProviderProps, any> {
-  static propTypes = {
-    locale: PropTypes.object,
-  };
-
   static defaultProps = {
     locale: {},
   };
@@ -46,8 +36,13 @@ export default class LocaleProvider extends React.Component<LocaleProviderProps,
 
   constructor(props: LocaleProviderProps) {
     super(props);
-    setMomentLocale(props.locale);
     changeConfirmLocale(props.locale && props.locale.Modal);
+
+    warning(
+      props._ANT_MARK__ === ANT_MARK,
+      'LocaleProvider',
+      '`LocaleProvider` is deprecated. Please use `locale` with `ConfigProvider` instead: http://u.ant.design/locale',
+    );
   }
 
   getChildContext() {
@@ -62,9 +57,8 @@ export default class LocaleProvider extends React.Component<LocaleProviderProps,
   componentDidUpdate(prevProps: LocaleProviderProps) {
     const { locale } = this.props;
     if (prevProps.locale !== locale) {
-      setMomentLocale(locale);
+      changeConfirmLocale(locale && locale.Modal);
     }
-    changeConfirmLocale(locale && locale.Modal);
   }
 
   componentWillUnmount() {
@@ -72,6 +66,6 @@ export default class LocaleProvider extends React.Component<LocaleProviderProps,
   }
 
   render() {
-    return React.Children.only(this.props.children);
+    return this.props.children;
   }
 }

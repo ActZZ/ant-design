@@ -1,11 +1,11 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { polyfill } from 'react-lifecycles-compat';
 import classNames from 'classnames';
 import RcCheckbox from 'rc-checkbox';
 import shallowEqual from 'shallowequal';
 import CheckboxGroup, { CheckboxGroupContext } from './Group';
 import { ConfigConsumer, ConfigConsumerProps } from '../config-provider';
+import warning from '../_util/warning';
 
 export interface AbstractCheckboxProps<T> {
   prefixCls?: string;
@@ -15,11 +15,11 @@ export interface AbstractCheckboxProps<T> {
   style?: React.CSSProperties;
   disabled?: boolean;
   onChange?: (e: T) => void;
-  onClick?: React.MouseEventHandler<any>;
-  onMouseEnter?: React.MouseEventHandler<any>;
-  onMouseLeave?: React.MouseEventHandler<any>;
-  onKeyPress?: React.KeyboardEventHandler<any>;
-  onKeyDown?: React.KeyboardEventHandler<any>;
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  onMouseEnter?: React.MouseEventHandler<HTMLElement>;
+  onMouseLeave?: React.MouseEventHandler<HTMLElement>;
+  onKeyPress?: React.KeyboardEventHandler<HTMLElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLElement>;
   value?: any;
   tabIndex?: number;
   name?: string;
@@ -45,6 +45,9 @@ export interface CheckboxChangeEvent {
 
 class Checkbox extends React.Component<CheckboxProps, {}> {
   static Group: typeof CheckboxGroup;
+
+  static __ANT_CHECKBOX = true;
+
   static defaultProps = {
     indeterminate: false,
   };
@@ -63,6 +66,24 @@ class Checkbox extends React.Component<CheckboxProps, {}> {
     if (checkboxGroup.registerValue) {
       checkboxGroup.registerValue(value);
     }
+
+    warning(
+      'checked' in this.props || (this.context || {}).checkboxGroup || !('value' in this.props),
+      'Checkbox',
+      '`value` is not validate prop, do you mean `checked`?',
+    );
+  }
+
+  shouldComponentUpdate(
+    nextProps: CheckboxProps,
+    nextState: {},
+    nextContext: CheckboxGroupContext,
+  ) {
+    return (
+      !shallowEqual(this.props, nextProps) ||
+      !shallowEqual(this.state, nextState) ||
+      !shallowEqual(this.context.checkboxGroup, nextContext.checkboxGroup)
+    );
   }
 
   componentDidUpdate({ value: prevValue }: CheckboxProps) {
@@ -82,17 +103,9 @@ class Checkbox extends React.Component<CheckboxProps, {}> {
     }
   }
 
-  shouldComponentUpdate(
-    nextProps: CheckboxProps,
-    nextState: {},
-    nextContext: CheckboxGroupContext,
-  ) {
-    return (
-      !shallowEqual(this.props, nextProps) ||
-      !shallowEqual(this.state, nextState) ||
-      !shallowEqual(this.context.checkboxGroup, nextContext.checkboxGroup)
-    );
-  }
+  saveCheckbox = (node: any) => {
+    this.rcCheckbox = node;
+  };
 
   focus() {
     this.rcCheckbox.focus();
@@ -101,10 +114,6 @@ class Checkbox extends React.Component<CheckboxProps, {}> {
   blur() {
     this.rcCheckbox.blur();
   }
-
-  saveCheckbox = (node: any) => {
-    this.rcCheckbox = node;
-  };
 
   renderCheckbox = ({ getPrefixCls }: ConfigConsumerProps) => {
     const { props, context } = this;
@@ -141,6 +150,7 @@ class Checkbox extends React.Component<CheckboxProps, {}> {
       [`${prefixCls}-indeterminate`]: indeterminate,
     });
     return (
+      // eslint-disable-next-line jsx-a11y/label-has-associated-control
       <label
         className={classString}
         style={style}
@@ -162,7 +172,5 @@ class Checkbox extends React.Component<CheckboxProps, {}> {
     return <ConfigConsumer>{this.renderCheckbox}</ConfigConsumer>;
   }
 }
-
-polyfill(Checkbox);
 
 export default Checkbox;

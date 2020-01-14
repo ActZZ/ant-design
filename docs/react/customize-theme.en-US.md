@@ -1,9 +1,9 @@
 ---
-order: 5
+order: 7
 title: Customize Theme
 ---
 
-Ant Design allows you to customize some basic design aspects in order to meet the needs of UI diversity from business and brand, including primary color, border radius, border color, etc.
+Ant Design allows you to customize our design tokens to satisfy UI diversity from business or brand requirements, including primary color, border radius, border color, etc.
 
 ![customized themes](https://zos.alipayobjects.com/rmsportal/zTFoszBtDODhXfLAazfSpYbSLSEeytoG.png)
 
@@ -22,8 +22,8 @@ There are some major variables below, all less variables could be found in [Defa
 @font-size-base: 14px; // major text font size
 @heading-color: rgba(0, 0, 0, 0.85); // heading text color
 @text-color: rgba(0, 0, 0, 0.65); // major text color
-@text-color-secondary : rgba(0, 0, 0, .45); // secondary text color
-@disabled-color : rgba(0, 0, 0, .25); // disable state color
+@text-color-secondary: rgba(0, 0, 0, 0.45); // secondary text color
+@disabled-color: rgba(0, 0, 0, 0.25); // disable state color
 @border-radius-base: 4px; // major border radius
 @border-color-base: #d9d9d9; // major border color
 @box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15); // major shadow for layers
@@ -69,9 +69,9 @@ module.exports = {
 
 Note that do not exclude antd package in node_modules when using less-loader.
 
-### Customize in roadhog or Umi
+### Customize in Umi
 
-You can easily use `theme` field in [.webpackrc](https://github.com/ant-design/ant-design-pro/blob/b7e7983661eb5e53dc807452e9653e93e74276d4/.webpackrc.js#L18) (roadhog) or [config/config.js](https://github.com/ant-design/ant-design-pro/blob/56e648ec14bdb9f6724169fd64830447e224ccb1/config/config.js#L45) (Umi) file of your project root directory if you are using [roadhog](https://github.com/sorrycc/roadhog) or [Umi](http://umijs.org/), which could be a object or a javascript file path.
+You can easily use [theme](https://umijs.org/config/#theme) field in [config/config.js](https://github.com/ant-design/ant-design-pro/blob/56e648ec14bdb9f6724169fd64830447e224ccb1/config/config.js#L45) (Umi) file of your project root directory if you are using [Umi](http://umijs.org/), which could be a object or a javascript file path.
 
 ```js
 "theme": {
@@ -100,6 +100,50 @@ Another approach to customize theme is creating a `less` file within variables t
 
 Note: This way will load the styles of all components, regardless of your demand, which cause `style` option of `babel-plugin-import` not working.
 
+### Use dark theme
+
+![](https://gw.alipayobjects.com/mdn/rms_08e378/afts/img/A*mYU9R4YFxscAAAAAAAAAAABkARQnAQ)
+
+Method 1: include `antd/dist/antd.dark.less` in the style file:
+
+```less
+@import '~antd/dist/antd.dark.less'; // Introduce the official dark less style entry file
+```
+
+Method 2: using [less-loader](https://github.com/webpack-contrib/less-loader) in `webpack.config.js` to introduce as needed:
+
+```diff
+const darkThemeVars = require('antd/dist/dark-theme');
+
+// webpack.config.js
+module.exports = {
+  rules: [{
+    test: /\.less$/,
+    use: [{
+      loader: 'style-loader',
+    }, {
+      loader: 'css-loader', // translates CSS into CommonJS
+    }, {
+      loader: 'less-loader', // compiles Less to CSS
++     options: {
++       modifyVars: {
++          'hack': `true;@import "${require.resolve('antd/lib/style/color/colorPalette.less')}";`
++          ...darkThemeVars,
++       },
++       javascriptEnabled: true,
++     },
+    }],
+    // ...other rules
+  }],
+  // ...other config
+```
+
+Method 3: If the project does not use Less, you can include `antd.dark.css` in the CSS file in full:
+
+```css
+@import '~antd/dist/antd.dark.css';
+```
+
 ## How to avoid modifying global styles?
 
 Currently ant-design is designed as a whole experience and modify global styles (eg `body` etc). If you need to integrate ant-design as a part of an existing website, it's likely you want to prevent ant-design to override global styles.
@@ -113,7 +157,7 @@ It's possible to configure webpack to load an alternate less file:
 ```ts
 new webpack.NormalModuleReplacementPlugin( /node_modules\/antd\/lib\/style\/index\.less/, path.resolve(rootDir, 'src/myStylesReplacement.less') )
 
-#antd { @import '~antd/lib/style/core/index.less'; @import '~antd/lib/style/themes/default.less'; }
+#antd { @import '~antd/es/style/core/index.less'; @import '~antd/es/style/themes/default.less'; }
 ```
 
 Where the src/myStylesReplacement.less file loads the same files as the index.less file, but loads them within the scope of a top-level selector : the result is that all of the "global" styles are being applied with the #antd scope.
@@ -128,6 +172,12 @@ You must import styles as less format. A common mistake would be importing multi
 
 - If you import styles by specifying the `style` option of [babel-plugin-import](https://github.com/ant-design/babel-plugin-import), change it from `'css'` to `true`, which will import the `less` version of antd.
 - If you import styles from `'antd/dist/antd.css'`, change it to `antd/dist/antd.less`.
+
+## Official Themes 🌈
+
+We have some official themes, try them out and give us some feedback!
+
+- [Aliyun Console Theme (Beta)](https://github.com/ant-design/ant-design-aliyun-theme)
 
 ## Related Articles
 

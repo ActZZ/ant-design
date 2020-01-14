@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'bisheng/router';
-import { Row, Col, Menu, Icon, Affix } from 'antd';
+import { Row, Col, Menu, Affix, Tooltip, Avatar } from 'antd';
+import { injectIntl } from 'react-intl';
+import { LeftOutlined, RightOutlined, ExportOutlined } from '@ant-design/icons';
+import ContributorsList from '@qixian.cs/github-contributors-list';
 import classNames from 'classnames';
 import get from 'lodash/get';
 import MobileMenu from 'rc-drawer';
+
+import { DarkIcon, DefaultIcon } from './ThemeIcon';
 import Article from './Article';
 import PrevAndNext from './PrevAndNext';
 import Footer from '../Layout/Footer';
@@ -12,13 +17,6 @@ import ComponentDoc from './ComponentDoc';
 import * as utils from '../utils';
 
 const { SubMenu } = Menu;
-
-function getActiveMenuItem(props) {
-  const { children } = props.params;
-  return (
-    (children && children.replace('-cn', '')) || props.location.pathname.replace(/(^\/|-cn$)/g, '')
-  );
-}
 
 function getModuleData(props) {
   const { pathname } = props.location;
@@ -29,15 +27,18 @@ function getModuleData(props) {
         .filter(item => item)
         .slice(0, 2)
         .join('/');
-  const moduleData =
-    moduleName === 'components' ||
-    moduleName === 'docs/react' ||
-    moduleName === 'changelog' ||
-    moduleName === 'changelog-cn'
-      ? [...props.picked.components, ...props.picked['docs/react'], ...props.picked.changelog]
-      : props.picked[moduleName];
   const excludedSuffix = utils.isZhCN(props.location.pathname) ? 'en-US.md' : 'zh-CN.md';
-  return moduleData.filter(({ meta }) => !meta.filename.endsWith(excludedSuffix));
+  let data;
+  switch (moduleName) {
+    case 'docs/react':
+    case 'changelog':
+    case 'changelog-cn':
+      data = [...props.picked['docs/react'], ...props.picked.changelog];
+      break;
+    default:
+      data = props.picked[moduleName];
+  }
+  return data.filter(({ meta }) => !meta.filename.endsWith(excludedSuffix));
 }
 
 function fileNameToPath(filename) {
@@ -56,10 +57,12 @@ const getSideBarOpenKeys = nextProps => {
   return shouldOpenKeys;
 };
 
-export default class MainContent extends Component {
+class MainContent extends Component {
   static contextTypes = {
-    intl: PropTypes.object.isRequired,
     isMobile: PropTypes.bool.isRequired,
+    theme: PropTypes.oneOf(['default', 'dark']),
+    setTheme: PropTypes.func,
+    setIframeTheme: PropTypes.func,
   };
 
   state = {
@@ -103,10 +106,10 @@ export default class MainContent extends Component {
   }
 
   getMenuItems(footerNavIcons = {}) {
-    const { themeConfig } = this.props;
     const {
+      themeConfig,
       intl: { locale },
-    } = this.context;
+    } = this.props;
     const moduleData = getModuleData(this.props);
     const menuItems = utils.getMenuItems(
       moduleData,
@@ -115,9 +118,18 @@ export default class MainContent extends Component {
       themeConfig.typeOrder,
     );
     return menuItems.map(menuItem => {
+      if (menuItem.type === 'type') {
+        return (
+          <Menu.ItemGroup title={menuItem.title} key={menuItem.title}>
+            {menuItem.children
+              .sort((a, b) => a.title.charCodeAt(0) - b.title.charCodeAt(0))
+              .map(leaf => this.generateMenuItem(false, leaf, footerNavIcons))}
+          </Menu.ItemGroup>
+        );
+      }
       if (menuItem.children) {
         return (
-          <SubMenu title={<h4>{menuItem.title}</h4>} key={menuItem.title}>
+          <SubMenu title={menuItem.title} key={menuItem.title}>
             {menuItem.children.map(child => {
               if (child.type === 'type') {
                 return (
@@ -150,6 +162,16 @@ export default class MainContent extends Component {
     return { prev, next };
   }
 
+  getActiveMenuItem() {
+    const {
+      params: { children },
+      location,
+    } = this.props;
+    return (
+      (children && children.replace('-cn', '')) || location.pathname.replace(/(^\/|-cn$)/g, '')
+    );
+  }
+
   handleMenuOpenChange = openKeys => {
     this.setState({ openKeys });
   };
@@ -171,6 +193,9 @@ export default class MainContent extends Component {
   bindScroller() {
     if (this.scroller) {
       this.scroller.destroy();
+    }
+    if (!document.querySelector('.markdown > h2, .code-box')) {
+      return;
     }
     require('intersection-observer'); // eslint-disable-line
     const scrollama = require('scrollama'); // eslint-disable-line
@@ -194,7 +219,7 @@ export default class MainContent extends Component {
   generateMenuItem(isTop, item, { before = null, after = null }) {
     const {
       intl: { locale },
-    } = this.context;
+    } = this.props;
     const key = fileNameToPath(item.filename);
     if (!item.title) {
       return null;
@@ -231,7 +256,7 @@ export default class MainContent extends Component {
         className="menu-item-link-outside"
       >
         {before}
-        {text} <Icon type="export" />
+        {text} <ExportOutlined />
         {after}
       </a>
     );
@@ -256,24 +281,34 @@ export default class MainContent extends Component {
     return this.flattenMenu((menu.props && menu.props.children) || menu.children);
   }
 
+  changeTheme = () => {
+    const { theme, setTheme } = this.context;
+    const nextTheme = theme !== 'dark' ? 'dark' : 'default';
+    setTheme(nextTheme);
+  };
+
   render() {
-    const { props } = this;
-    const { isMobile } = this.context;
+    const { isMobile, theme, setIframeTheme } = this.context;
     const { openKeys } = this.state;
-    const activeMenuItem = getActiveMenuItem(props);
+    const {
+      localizedPageData,
+      demos,
+      intl: { formatMessage },
+    } = this.props;
+    const { meta } = localizedPageData;
+    const activeMenuItem = this.getActiveMenuItem();
     const menuItems = this.getMenuItems();
     const menuItemsForFooterNav = this.getMenuItems({
-      before: <Icon className="footer-nav-icon-before" type="left" />,
-      after: <Icon className="footer-nav-icon-after" type="right" />,
+      before: <LeftOutlined className="footer-nav-icon-before" />,
+      after: <RightOutlined className="footer-nav-icon-after" />,
     });
     const { prev, next } = this.getFooterNav(menuItemsForFooterNav, activeMenuItem);
-    const { localizedPageData } = props;
     const mainContainerClass = classNames('main-container', {
-      'main-container-component': !!props.demos,
+      'main-container-component': !!demos,
     });
     const menuChild = (
       <Menu
-        inlineIndent="40"
+        inlineIndent={30}
         className="aside-container menu-site"
         mode="inline"
         openKeys={openKeys}
@@ -283,15 +318,13 @@ export default class MainContent extends Component {
         {menuItems}
       </Menu>
     );
+    const componentPage = /^\/?components/.test(this.props.location.pathname);
+
     return (
       <div className="main-wrapper">
         <Row>
           {isMobile ? (
-            <MobileMenu
-              iconChild={[<Icon type="menu-unfold" />, <Icon type="menu-fold" />]}
-              key="Mobile-menu"
-              wrapperClassName="drawer-wrapper"
-            >
+            <MobileMenu key="Mobile-menu" wrapperClassName="drawer-wrapper">
               {menuChild}
             </MobileMenu>
           ) : (
@@ -303,12 +336,60 @@ export default class MainContent extends Component {
           )}
           <Col xxl={20} xl={19} lg={18} md={24} sm={24} xs={24}>
             <section className={mainContainerClass}>
-              {props.demos ? (
-                <ComponentDoc {...props} doc={localizedPageData} demos={props.demos} />
+              {demos ? (
+                <ComponentDoc
+                  {...this.props}
+                  doc={localizedPageData}
+                  demos={demos}
+                  theme={theme}
+                  setIframeTheme={setIframeTheme}
+                />
               ) : (
-                <Article {...props} content={localizedPageData} />
+                <Article {...this.props} content={localizedPageData} />
               )}
+              <ContributorsList
+                className="contributors-list"
+                fileName={meta.filename}
+                renderItem={(item, loading) =>
+                  loading ? (
+                    <Avatar style={{ opacity: 0.3 }} />
+                  ) : (
+                    <Tooltip
+                      title={`${formatMessage({ id: 'app.content.contributors' })}: ${
+                        item.username
+                      }`}
+                      key={item.username}
+                    >
+                      <a
+                        href={`https://github.com/${item.username}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Avatar src={item.url}>{item.username}</Avatar>
+                      </a>
+                    </Tooltip>
+                  )
+                }
+                repo="ant-design"
+                owner="ant-design"
+              />
             </section>
+            {componentPage && (
+              <div className="fixed-widgets">
+                <Tooltip
+                  getPopupContainer={node => node.parentNode}
+                  title={formatMessage({ id: `app.theme.switch.${theme}` })}
+                  overlayClassName="fixed-widgets-tooltip"
+                >
+                  <Avatar
+                    className={classNames('fixed-widgets-avatar', `fixed-widgets-avatar-${theme}`)}
+                    size={44}
+                    onClick={this.changeTheme}
+                    icon={theme === 'dark' ? <DarkIcon /> : <DefaultIcon />}
+                  />
+                </Tooltip>
+              </div>
+            )}
             <PrevAndNext prev={prev} next={next} />
             <Footer />
           </Col>
@@ -317,3 +398,5 @@ export default class MainContent extends Component {
     );
   }
 }
+
+export default injectIntl(MainContent);

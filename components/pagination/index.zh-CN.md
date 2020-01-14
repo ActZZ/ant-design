@@ -15,8 +15,8 @@ cols: 1
 
 ## API
 
-```html
-<Pagination onChange="{onChange}" total="{50}" />
+```jsx
+<Pagination onChange={onChange} total={50} />
 ```
 
 | 参数 | 说明 | 类型 | 默认值 | 版本 |
@@ -24,7 +24,7 @@ cols: 1
 | current | 当前页数 | number | - |  |
 | defaultCurrent | 默认的当前页数 | number | 1 |  |
 | defaultPageSize | 默认的每页条数 | number | 10 |  |
-| disabled | 禁用分页 | boolean | - | 3.10.0 |
+| disabled | 禁用分页 | boolean | - |  |
 | hideOnSinglePage | 只有一页时是否隐藏分页器 | boolean | false |  |
 | itemRender | 用于自定义页码的结构，可用于优化 SEO | (page, type: 'page' \| 'prev' \| 'next', originalElement) => React.ReactNode | - |  |
 | pageSize | 每页条数 | number | - |  |

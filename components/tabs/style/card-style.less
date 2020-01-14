@@ -14,7 +14,7 @@
   &&-card &-card-bar &-tab {
     height: @tabs-card-height;
     margin: 0;
-    margin-right: 2px;
+    margin-right: @tabs-card-gutter;
     padding: 0 16px;
     line-height: @tabs-card-height - 2px;
     background: @tabs-card-head-background;
@@ -28,6 +28,14 @@
     background: @component-background;
     border-color: @border-color-split;
     border-bottom: @border-width-base solid @component-background;
+
+    &::before {
+      border-top: @tabs-card-tab-active-border-top;
+    }
+  }
+  &&-card &-card-bar &-tab-disabled {
+    color: @tabs-card-active-color;
+    color: @disabled-color;
   }
   &&-card &-card-bar &-tab-inactive {
     padding: 0;
@@ -49,6 +57,11 @@
     &:hover {
       color: @heading-color;
     }
+
+    .@{tab-prefix-cls}-rtl& {
+      margin-right: 3px;
+      margin-left: -5px;
+    }
   }
 
   &&-card &-card-content > &-tabpane,
@@ -64,7 +77,12 @@
   }
 
   &-extra-content {
-    line-height: @tabs-card-height;
+    line-height: @tabs-title-font-size * @line-height-base + extract(@tabs-horizontal-padding, 1) *
+      2;
+
+    .@{tab-prefix-cls}-rtl & {
+      float: left !important;
+    }
 
     .@{tab-prefix-cls}-new-tab {
       position: relative;
@@ -75,7 +93,7 @@
       line-height: 20px;
       text-align: center;
       border: @border-width-base @border-style-base @border-color-split;
-      border-radius: @border-radius-sm;
+      border-radius: @border-radius-base;
       cursor: pointer;
       transition: all 0.3s;
       &:hover {
@@ -93,11 +111,28 @@
     }
   }
 
+  // https://github.com/ant-design/ant-design/issues/17865
+  &&-large &-extra-content {
+    line-height: @tabs-title-font-size-lg * @line-height-base +
+      extract(@tabs-horizontal-padding-lg, 1) * 2;
+  }
+
+  // https://github.com/ant-design/ant-design/issues/17865
+  &&-small &-extra-content {
+    line-height: @tabs-title-font-size-sm * @line-height-base +
+      extract(@tabs-horizontal-padding-sm, 1) * 2;
+  }
+
+  // https://github.com/ant-design/ant-design/issues/17865
+  &&-card &-extra-content {
+    line-height: @tabs-card-height;
+  }
+
   // https://github.com/ant-design/ant-design/issues/4669
   &-vertical&-card &-card-bar&-left-bar,
   &-vertical&-card &-card-bar&-right-bar {
     .@{tab-prefix-cls}-nav-container {
-      height: auto;
+      height: 100%;
     }
     .@{tab-prefix-cls}-tab {
       margin-bottom: 8px;

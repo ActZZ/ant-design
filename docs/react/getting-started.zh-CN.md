@@ -1,5 +1,5 @@
 ---
-order: 1
+order: 2
 title: 快速上手
 ---
 
@@ -11,9 +11,15 @@ Ant Design React 致力于提供给程序员**愉悦**的开发体验。
 
 ## 第一个例子
 
-这是一个最简单的 Ant Design 组件的在线演示。
+这是一个最简单的 Ant Design 组件的在线 codesandbox 演示。
 
-<iframe src="https://codesandbox.io/embed/wk04r016q8?fontsize=14" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
+<iframe
+  src="https://codesandbox.io/embed/antd-reproduction-template-6e93z?autoresize=1&fontsize=14&hidenavigation=1&theme=dark"
+  style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+  title="antd reproduction template"
+  allow="geolocation; microphone; camera; midi; vr; accelerometer; gyroscope; payment; ambient-light-sensor; encrypted-media; usb"
+  sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"
+/>
 
 ### 1. 创建一个 codesandbox
 
@@ -26,9 +32,9 @@ Ant Design React 致力于提供给程序员**愉悦**的开发体验。
 ```jsx
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { LocaleProvider, DatePicker, message } from 'antd';
+import { ConfigProvider, DatePicker, message } from 'antd';
 // 由于 antd 组件的默认文案是英文，所以需要修改为中文
-import zhCN from 'antd/lib/locale-provider/zh_CN';
+import zhCN from 'antd/es/locale/zh_CN';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import 'antd/dist/antd.css';
@@ -42,20 +48,20 @@ class App extends React.Component {
   };
 
   handleChange = date => {
-    message.info(`您选择的日期是: ${date.format('YYYY-MM-DD')}`);
+    message.info(`您选择的日期是: ${date ? date.format('YYYY-MM-DD') : '未选择'}`);
     this.setState({ date });
   };
   render() {
     const { date } = this.state;
     return (
-      <LocaleProvider locale={zhCN}>
+      <ConfigProvider locale={zhCN}>
         <div style={{ width: 400, margin: '100px auto' }}>
           <DatePicker onChange={this.handleChange} />
           <div style={{ marginTop: 20 }}>
             当前日期：{date ? date.format('YYYY-MM-DD') : '未选择'}
           </div>
         </div>
-      </LocaleProvider>
+      </ConfigProvider>
     );
   }
 }
@@ -70,8 +76,8 @@ ReactDOM.render(<App />, document.getElementById('root'));
 然后依照演示代码的写法，在之前的 codesandbox 里修改 `index.js`，首先在 `import` 内引入 Alert 组件：
 
 ```diff
-- import { LocaleProvider, DatePicker, message } from 'antd';
-+ import { LocaleProvider, DatePicker, message, Alert } from 'antd';
+- import { ConfigProvider, DatePicker, message } from 'antd';
++ import { ConfigProvider, DatePicker, message, Alert } from 'antd';
 ```
 
 然后在 `render` 内添加相应的 jsx 代码：
@@ -101,23 +107,19 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 ## 兼容性
 
-Ant Design React 支持所有的现代浏览器和 IE9+。
+Ant Design React 支持所有的现代浏览器和 IE11+。
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE / Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Opera | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/electron/electron_48x48.png" alt="Electron" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Electron |
 | --- | --- | --- | --- | --- | --- |
-| IE9, IE10, IE11, Edge | last 2 versions | last 2 versions | last 2 versions | last 2 versions | last 2 versions |
-
-我们对 IE9/10 提供有限度的支持，部分样式和动画在 IE9/10 下的表现会比较裸。少数组件使用到了 Flex 布局，在 IE9/10 下也会有问题。
-
-> 注意，不同于 Ant Design，Ant Design Pro 是只支持到 IE11+ 的。
+| IE11, Edge | last 2 versions | last 2 versions | last 2 versions | last 2 versions | last 2 versions |
 
 对于 IE 系列浏览器，需要提供相应的 Polyfill 支持，建议使用 [babel-preset-env](https://babeljs.io/docs/en/babel-preset-env) 来解决浏览器兼容问题。如果你在使用 [umi](http://umijs.org/)，可以直接使用 [targets](https://umijs.org/zh/config/#targets) 配置。
 
 Ant Design 3.0 对 React 15/16 两个版本提供支持，但是我们强烈建议你升级到 React 16，以便获得更好的性能和遇到更少的问题。
 
-#### IE8 note
+#### IE note
 
-> `antd@2.0` 之后将不再支持 IE8。
+> `antd@2.0` 之后将不再支持 IE8，`antd@4.0` 之后将不再支持 IE9/10。
 
 ## 自行构建
 
@@ -140,11 +142,11 @@ You are using a whole package of antd, please use https://www.npmjs.com/package/
 可以通过以下的写法来按需加载组件。
 
 ```jsx
-import Button from 'antd/lib/button';
-import 'antd/lib/button/style'; // 或者 antd/lib/button/style/css 加载 css 文件
+import Button from 'antd/es/button';
+import 'antd/es/button/style'; // 或者 antd/es/button/style/css 加载 css 文件
 ```
 
-> `antd/es/button` 可以加载 ES 版本的模块，方便进一步 Tree Shake.
+> 注意：antd 默认支持基于 ES module 的 tree shaking，对于 js 部分，直接引入 `import { Button } from 'antd'` 也会有按需加载的效果。
 
 如果你使用了 babel，那么可以使用 [babel-plugin-import](https://github.com/ant-design/babel-plugin-import) 来进行按需加载，加入这个插件后。你可以仍然这么写：
 
@@ -152,9 +154,23 @@ import 'antd/lib/button/style'; // 或者 antd/lib/button/style/css 加载 css �
 import { Button } from 'antd';
 ```
 
-插件会帮你转换成 `antd/lib/xxx` 的写法。另外此插件配合 [style](https://github.com/ant-design/babel-plugin-import#usage) 属性可以做到模块样式的按需自动加载。
+插件会帮你转换成 `antd/es/xxx` 的写法。另外此插件配合 [style](https://github.com/ant-design/babel-plugin-import#usage) 属性可以做到模块样式的按需自动加载。
 
 > 注意，babel-plugin-import 的 `style` 属性除了引入对应组件的样式，也会引入一些必要的全局样式。如果你不需要它们，建议不要使用此属性。你可以 `import 'antd/dist/antd.css'` 手动引入，并覆盖全局样式。
+
+## 使用 Day.js 替换 momentjs 优化打包大小
+
+你可以使用 [antd-dayjs-webpack-plugin](https://github.com/ant-design/antd-dayjs-webpack-plugin) 插件用 Day.js 替换 momentjs 来大幅减小打包大小。这需要更新 webpack 的配置文件如下：
+
+```js
+// webpack-config.js
+import AntdDayjsWebpackPlugin from 'antd-dayjs-webpack-plugin';
+
+module.exports = {
+  // ...
+  plugins: [new AntdDayjsWebpackPlugin()],
+};
+```
 
 ## 配置主题和字体
 

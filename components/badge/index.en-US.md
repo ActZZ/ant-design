@@ -24,7 +24,7 @@ Badge normally appears in proximity to notifications or user avatars with eye-ca
 
 | Property | Description | Type | Default | Version |
 | --- | --- | --- | --- | --- |
-| color | Customize Badge dot color | string | - | 3.16.0 |
+| color | Customize Badge dot color | string | - |  |
 | count | Number to show in badge | ReactNode |  |  |
 | dot | Whether to display a red dot instead of `count` | boolean | `false` |  |
 | offset | set offset of the badge dot, like`[x, y]` | `[number, number]` | - |  |

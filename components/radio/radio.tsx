@@ -10,6 +10,7 @@ import { ConfigConsumer, ConfigConsumerProps } from '../config-provider';
 
 export default class Radio extends React.Component<RadioProps, {}> {
   static Group: typeof RadioGroup;
+
   static Button: typeof RadioButton;
 
   static defaultProps = {
@@ -32,14 +33,6 @@ export default class Radio extends React.Component<RadioProps, {}> {
     );
   }
 
-  focus() {
-    this.rcCheckbox.focus();
-  }
-
-  blur() {
-    this.rcCheckbox.blur();
-  }
-
   saveCheckbox = (node: any) => {
     this.rcCheckbox = node;
   };
@@ -54,7 +47,15 @@ export default class Radio extends React.Component<RadioProps, {}> {
     }
   };
 
-  renderRadio = ({ getPrefixCls }: ConfigConsumerProps) => {
+  focus() {
+    this.rcCheckbox.focus();
+  }
+
+  blur() {
+    this.rcCheckbox.blur();
+  }
+
+  renderRadio = ({ getPrefixCls, direction }: ConfigConsumerProps) => {
     const { props, context } = this;
     const { prefixCls: customizePrefixCls, className, children, style, ...restProps } = props;
     const { radioGroup } = context;
@@ -70,9 +71,11 @@ export default class Radio extends React.Component<RadioProps, {}> {
       [`${prefixCls}-wrapper`]: true,
       [`${prefixCls}-wrapper-checked`]: radioProps.checked,
       [`${prefixCls}-wrapper-disabled`]: radioProps.disabled,
+      [`${prefixCls}-wrapper-rtl`]: direction === 'rtl',
     });
 
     return (
+      // eslint-disable-next-line jsx-a11y/label-has-associated-control
       <label
         className={wrapperClassString}
         style={style}

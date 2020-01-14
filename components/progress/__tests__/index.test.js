@@ -2,8 +2,13 @@ import React from 'react';
 import { mount } from 'enzyme';
 import Progress from '..';
 import { handleGradient, sortGradient } from '../Line';
+import mountTest from '../../../tests/shared/mountTest';
+import rtlTest from '../../../tests/shared/rtlTest';
 
 describe('Progress', () => {
+  mountTest(Progress);
+  rtlTest(Progress);
+
   it('successPercent should decide the progress status when it exists', () => {
     const wrapper = mount(<Progress percent={100} successPercent={50} />);
     expect(wrapper.find('.ant-progress-status-success')).toHaveLength(0);

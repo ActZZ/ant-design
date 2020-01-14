@@ -9,7 +9,11 @@
   background-color: @collapse-header-bg;
   border: @border-width-base @border-style-base @border-color-base;
   border-bottom: 0;
-  border-radius: @border-radius-base;
+  border-radius: @collapse-panel-border-radius;
+
+  &-rtl {
+    direction: rtl;
+  }
 
   & > &-item {
     border-bottom: @border-width-base @border-style-base @border-color-base;
@@ -17,7 +21,7 @@
     &:last-child {
       &,
       & > .@{collapse-prefix-cls}-header {
-        border-radius: 0 0 @border-radius-base @border-radius-base;
+        border-radius: 0 0 @collapse-panel-border-radius @collapse-panel-border-radius;
       }
     }
 
@@ -30,6 +34,11 @@
       cursor: pointer;
       transition: all 0.3s;
 
+      .@{collapse-prefix-cls}-rtl & {
+        padding: @collapse-header-padding;
+        padding-right: @collapse-header-padding-extra;
+      }
+
       .@{collapse-prefix-cls}-arrow {
         .iconfont-mixin();
 
@@ -37,18 +46,24 @@
         top: 50%;
         left: @padding-md;
         display: inline-block;
-        margin-top: 2px;
         font-size: @font-size-sm;
-        line-height: 46px;
         transform: translateY(-50%);
 
         & svg {
           transition: transform 0.24s;
+
+          .@{collapse-prefix-cls}-rtl& {
+            transform: rotate(180deg);
+          }
         }
       }
 
       .@{collapse-prefix-cls}-extra {
         float: right;
+
+        .@{collapse-prefix-cls}-rtl& {
+          float: left;
+        }
       }
 
       &:focus {
@@ -59,6 +74,11 @@
     &.@{collapse-prefix-cls}-no-arrow {
       > .@{collapse-prefix-cls}-header {
         padding-left: 12px;
+
+        .@{collapse-prefix-cls}-rtl& {
+          padding-right: 12px;
+          padding-left: 0;
+        }
       }
     }
   }
@@ -72,7 +92,7 @@
 
         .@{collapse-prefix-cls}-arrow {
           right: @padding-md;
-          left: initial;
+          left: auto;
         }
       }
     }
@@ -99,12 +119,12 @@
 
   &-item:last-child {
     > .@{collapse-prefix-cls}-content {
-      border-radius: 0 0 @border-radius-base @border-radius-base;
+      border-radius: 0 0 @collapse-panel-border-radius @collapse-panel-border-radius;
     }
   }
 
   &-borderless {
-    background-color: @component-background;
+    background-color: @collapse-header-bg;
     border: 0;
   }
 

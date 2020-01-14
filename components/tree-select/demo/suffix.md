@@ -15,10 +15,11 @@ title:
 The most basic usage.
 
 ```jsx
-import { TreeSelect, Icon } from 'antd';
+import { TreeSelect } from 'antd';
+import { SmileOutlined } from '@ant-design/icons';
 
-const TreeNode = TreeSelect.TreeNode;
-const icon = <Icon type="smile" />;
+const { TreeNode } = TreeSelect;
+const icon = <SmileOutlined />;
 
 class Demo extends React.Component {
   state = {
@@ -35,7 +36,7 @@ class Demo extends React.Component {
       <TreeSelect
         showSearch
         suffixIcon={icon}
-        style={{ width: 300 }}
+        style={{ width: '100%' }}
         value={this.state.value}
         dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
         placeholder="Please select"

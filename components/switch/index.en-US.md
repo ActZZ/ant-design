@@ -25,7 +25,7 @@ Switching Selector.
 | unCheckedChildren | content to be shown when the state is unchecked | string\|ReactNode |  |
 | onChange | trigger when the checked state is changing | Function(checked: boolean, event: Event) |  |
 | onClick | trigger when clicked | Function(checked: boolean, event: Event) |  |
-| className | additional class to Switch | string | - |
+| className | additional class to Switch | string |  |
 
 ## Methods
 

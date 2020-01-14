@@ -5,7 +5,7 @@ import { ConfigConsumer, ConfigConsumerProps } from '../config-provider';
 export interface GroupProps {
   className?: string;
   size?: 'large' | 'small' | 'default';
-  children?: any;
+  children?: React.ReactNode;
   style?: React.CSSProperties;
   onMouseEnter?: React.MouseEventHandler<HTMLSpanElement>;
   onMouseLeave?: React.MouseEventHandler<HTMLSpanElement>;
@@ -17,7 +17,7 @@ export interface GroupProps {
 
 const Group: React.StatelessComponent<GroupProps> = props => (
   <ConfigConsumer>
-    {({ getPrefixCls }: ConfigConsumerProps) => {
+    {({ getPrefixCls, direction }: ConfigConsumerProps) => {
       const { prefixCls: customizePrefixCls, className = '' } = props;
       const prefixCls = getPrefixCls('input-group', customizePrefixCls);
       const cls = classNames(
@@ -26,6 +26,7 @@ const Group: React.StatelessComponent<GroupProps> = props => (
           [`${prefixCls}-lg`]: props.size === 'large',
           [`${prefixCls}-sm`]: props.size === 'small',
           [`${prefixCls}-compact`]: props.compact,
+          [`${prefixCls}-rtl`]: direction === 'rtl',
         },
         className,
       );

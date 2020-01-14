@@ -8,10 +8,29 @@
 
   display: inline-block;
 
+  &-rtl {
+    direction: rtl;
+  }
+
   &-line {
     position: relative;
     width: 100%;
     font-size: @font-size-base;
+  }
+
+  &-steps {
+    display: inline-block;
+    &-outer {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    &-item {
+      flex-shrink: 0;
+      min-width: 2px;
+      margin-right: 2px;
+      background: @progress-steps-item-bg;
+    }
   }
 
   &-small&-line,
@@ -27,6 +46,13 @@
     .@{progress-prefix-cls}-show-info & {
       margin-right: ~'calc(-2em - 8px)';
       padding-right: ~'calc(2em + 8px)';
+
+      .@{progress-prefix-cls}-rtl& {
+        margin-right: 0;
+        margin-left: ~'calc(-2em - 8px)';
+        padding-right: 0;
+        padding-left: ~'calc(2em + 8px)';
+      }
     }
   }
 
@@ -34,9 +60,10 @@
     position: relative;
     display: inline-block;
     width: 100%;
+    overflow: hidden;
     vertical-align: middle;
     background-color: @progress-remaining-color;
-    border-radius: 100px;
+    border-radius: @progress-radius;
   }
 
   &-circle-trail {
@@ -45,13 +72,19 @@
 
   &-circle-path {
     animation: ~'@{ant-prefix}-progress-appear' 0.3s;
-    stroke: @progress-default-color;
+  }
+
+  &-inner:not(.@{ant-prefix}-progress-circle-gradient) {
+    .@{ant-prefix}-progress-circle-path {
+      stroke: @progress-default-color;
+    }
   }
 
   &-success-bg,
   &-bg {
     position: relative;
     background-color: @progress-default-color;
+    border-radius: @progress-radius;
     transition: all 0.4s @ease-out-circ 0s;
   }
 
@@ -60,6 +93,11 @@
     top: 0;
     left: 0;
     background-color: @success-color;
+
+    .@{progress-prefix-cls}-rtl & {
+      right: 0;
+      left: auto;
+    }
   }
 
   &-text {
@@ -75,6 +113,12 @@
     word-break: normal;
     .@{iconfont-css-prefix} {
       font-size: @font-size-base;
+    }
+
+    .@{progress-prefix-cls}-rtl & {
+      margin-right: 8px;
+      margin-left: 0;
+      text-align: right;
     }
   }
 
@@ -100,6 +144,9 @@
     .@{progress-prefix-cls}-text {
       color: @error-color;
     }
+  }
+
+  &-status-exception &-inner:not(.@{progress-prefix-cls}-circle-gradient) {
     .@{progress-prefix-cls}-circle-path {
       stroke: @error-color;
     }
@@ -112,6 +159,9 @@
     .@{progress-prefix-cls}-text {
       color: @success-color;
     }
+  }
+
+  &-status-success &-inner:not(.@{progress-prefix-cls}-circle-gradient) {
     .@{progress-prefix-cls}-circle-path {
       stroke: @success-color;
     }

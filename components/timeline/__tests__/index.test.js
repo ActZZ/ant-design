@@ -1,6 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import TimeLine from '..';
+import mountTest from '../../../tests/shared/mountTest';
+import rtlTest from '../../../tests/shared/rtlTest';
 
 const { Item } = TimeLine;
 
@@ -14,6 +16,11 @@ const wrapperFactory = (timeLineProps = {}) =>
   );
 
 describe('TimeLine', () => {
+  mountTest(TimeLine);
+  mountTest(TimeLine.Item);
+  rtlTest(TimeLine);
+  rtlTest(TimeLine.Item);
+
   describe('renders items without passing any props correctly', () => {
     const wrapper = wrapperFactory();
 

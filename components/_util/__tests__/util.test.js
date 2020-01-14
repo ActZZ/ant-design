@@ -1,11 +1,13 @@
 import raf from 'raf';
 import React from 'react';
 import { mount } from 'enzyme';
+import KeyCode from 'rc-util/lib/KeyCode';
 import delayRaf from '../raf';
 import throttleByAnimationFrame from '../throttleByAnimationFrame';
 import getDataOrAriaProps from '../getDataOrAriaProps';
-import triggerEvent from '../triggerEvent';
 import Wave from '../wave';
+import TransButton from '../transButton';
+import openAnimation from '../openAnimation';
 
 describe('Test utils function', () => {
   beforeAll(() => {
@@ -123,24 +125,13 @@ describe('Test utils function', () => {
     });
   });
 
-  it('triggerEvent', () => {
-    const button = document.createElement('button');
-    button.addEventListener(
-      'click',
-      () => {
-        button.style.width = '100px';
-      },
-      true,
-    );
-    triggerEvent(button, 'click');
-    expect(button.style.width).toBe('100px');
-  });
-
   describe('wave', () => {
     it('bindAnimationEvent should return when node is null', () => {
       const wrapper = mount(
         <Wave>
-          <button type="button" disabled />
+          <button type="button" disabled>
+            button
+          </button>
         </Wave>,
       ).instance();
       expect(wrapper.bindAnimationEvent()).toBe(undefined);
@@ -149,7 +140,9 @@ describe('Test utils function', () => {
     it('bindAnimationEvent.onClick should return when children is hidden', () => {
       const wrapper = mount(
         <Wave>
-          <button type="button" style={{ display: 'none' }} />
+          <button type="button" style={{ display: 'none' }}>
+            button
+          </button>
         </Wave>,
       ).instance();
       expect(wrapper.bindAnimationEvent()).toBe(undefined);
@@ -162,6 +155,56 @@ describe('Test utils function', () => {
         </Wave>,
       ).instance();
       expect(wrapper.bindAnimationEvent()).toBe(undefined);
+    });
+
+    it('should not throw when click it', () => {
+      expect(() => {
+        const wrapper = mount(
+          <Wave>
+            <div />
+          </Wave>,
+        );
+        wrapper.simulate('click');
+      }).not.toThrow();
+    });
+
+    it('should not throw when no children', () => {
+      expect(() => mount(<Wave />)).not.toThrow();
+    });
+  });
+
+  describe('TransButton', () => {
+    it('can be focus/blur', () => {
+      const wrapper = mount(<TransButton>TransButton</TransButton>);
+      expect(typeof wrapper.instance().focus).toBe('function');
+      expect(typeof wrapper.instance().blur).toBe('function');
+    });
+
+    it('should trigger onClick when press enter', () => {
+      const onClick = jest.fn();
+      const preventDefault = jest.fn();
+      const wrapper = mount(<TransButton onClick={onClick}>TransButton</TransButton>);
+      wrapper.simulate('keyUp', { keyCode: KeyCode.ENTER });
+      expect(onClick).toHaveBeenCalled();
+      wrapper.simulate('keyDown', { keyCode: KeyCode.ENTER, preventDefault });
+      expect(preventDefault).toHaveBeenCalled();
+    });
+  });
+
+  describe('openAnimation', () => {
+    it('should support openAnimation', () => {
+      const done = jest.fn();
+      const domNode = document.createElement('div');
+      expect(typeof openAnimation.enter).toBe('function');
+      expect(typeof openAnimation.leave).toBe('function');
+      expect(typeof openAnimation.appear).toBe('function');
+      const appear = openAnimation.appear(domNode, done);
+      const enter = openAnimation.enter(domNode, done);
+      const leave = openAnimation.leave(domNode, done);
+      expect(typeof appear.stop).toBe('function');
+      expect(typeof enter.stop).toBe('function');
+      expect(typeof leave.stop).toBe('function');
+      expect(done).toHaveBeenCalled();
     });
   });
 });

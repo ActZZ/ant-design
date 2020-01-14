@@ -87,7 +87,7 @@ The sidebar.
 
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| breakpoint | [breakpoints](/components/grid#api) of the responsive layout | Enum { 'xs', 'sm', 'md', 'lg', 'xl', 'xxl' } | - |
+| breakpoint | [breakpoints](/components/grid#Col) of the responsive layout | Enum { 'xs', 'sm', 'md', 'lg', 'xl', 'xxl' } | - |
 | className | container className | string | - |
 | collapsed | to set the current status | boolean | - |
 | collapsedWidth | width of the collapsed sidebar, by setting to `0` a special trigger will appear | number | 80 |
@@ -99,7 +99,8 @@ The sidebar.
 | trigger | specify the customized trigger, set to null to hide the trigger | string\|ReactNode | - |
 | width | width of the sidebar | number\|string | 200 |
 | onCollapse | the callback function, executed by clicking the trigger or activating the responsive layout | (collapsed, type) => {} | - |
-| onBreakpoint | the callback function, executed when [breakpoints](/components/grid#api) changed | (broken) => {} | - |
+| onBreakpoint | the callback function, executed when [breakpoints](/components/grid#API) changed | (broken) => {} | - |
+| zeroWidthTriggerStyle | to customize the styles of the special trigger that appears when `collapsedWidth` is 0 | object | - |
 
 #### breakpoint width
 
@@ -113,3 +114,12 @@ The sidebar.
   xxl: '1600px',
 }
 ```
+
+<style>
+  [data-theme="dark"] .site-layout-background {
+    background: #141414;
+  }
+  [data-theme="dark"] .site-layout-header-background {
+    background: #1f1f1f;
+  }
+</style>

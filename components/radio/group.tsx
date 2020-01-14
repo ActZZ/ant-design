@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import shallowEqual from 'shallowequal';
-import { polyfill } from 'react-lifecycles-compat';
 import Radio from './radio';
 import {
   RadioGroupProps,
@@ -11,6 +10,7 @@ import {
   RadioGroupButtonStyle,
 } from './interface';
 import { ConfigConsumer, ConfigConsumerProps } from '../config-provider';
+import SizeContext from '../config-provider/SizeContext';
 
 function getCheckedValue(children: React.ReactNode) {
   let value = null;
@@ -26,7 +26,6 @@ function getCheckedValue(children: React.ReactNode) {
 
 class RadioGroup extends React.Component<RadioGroupProps, RadioGroupState> {
   static defaultProps = {
-    disabled: false,
     buttonStyle: 'outline' as RadioGroupButtonStyle,
   };
 
@@ -39,14 +38,14 @@ class RadioGroup extends React.Component<RadioGroupProps, RadioGroupState> {
       return {
         value: nextProps.value,
       };
-    } else {
-      const checkedValue = getCheckedValue(nextProps.children);
-      if (checkedValue) {
-        return {
-          value: checkedValue.value,
-        };
-      }
     }
+    const checkedValue = getCheckedValue(nextProps.children);
+    if (checkedValue) {
+      return {
+        value: checkedValue.value,
+      };
+    }
+
     return null;
   }
 
@@ -90,37 +89,33 @@ class RadioGroup extends React.Component<RadioGroupProps, RadioGroupState> {
       });
     }
 
-    const onChange = this.props.onChange;
+    const { onChange } = this.props;
     if (onChange && value !== lastValue) {
       onChange(ev);
     }
   };
 
-  renderGroup = ({ getPrefixCls }: ConfigConsumerProps) => {
-    const props = this.props;
-    const { prefixCls: customizePrefixCls, className = '', options, buttonStyle } = props;
+  renderGroup = ({ getPrefixCls, direction }: ConfigConsumerProps) => {
+    const { props } = this;
+    const {
+      prefixCls: customizePrefixCls,
+      className = '',
+      options,
+      buttonStyle,
+      size: customizeSize,
+    } = props;
     const prefixCls = getPrefixCls('radio', customizePrefixCls);
     const groupPrefixCls = `${prefixCls}-group`;
-    const classString = classNames(
-      groupPrefixCls,
-      `${groupPrefixCls}-${buttonStyle}`,
-      {
-        [`${groupPrefixCls}-${props.size}`]: props.size,
-      },
-      className,
-    );
-
-    let children: React.ReactChildren[] | React.ReactElement<any>[] | React.ReactNode =
-      props.children;
+    let { children } = props;
 
     // 如果存在 options, 优先使用
     if (options && options.length > 0) {
-      children = options.map((option, index) => {
+      children = options.map(option => {
         if (typeof option === 'string') {
           // 此处类型自动推导为 string
           return (
             <Radio
-              key={index}
+              key={option}
               prefixCls={prefixCls}
               disabled={this.props.disabled}
               value={option}
@@ -129,33 +124,49 @@ class RadioGroup extends React.Component<RadioGroupProps, RadioGroupState> {
               {option}
             </Radio>
           );
-        } else {
-          // 此处类型自动推导为 { label: string value: string }
-          return (
-            <Radio
-              key={index}
-              prefixCls={prefixCls}
-              disabled={option.disabled || this.props.disabled}
-              value={option.value}
-              checked={this.state.value === option.value}
-            >
-              {option.label}
-            </Radio>
-          );
         }
+        // 此处类型自动推导为 { label: string value: string }
+        return (
+          <Radio
+            key={`radio-group-value-options-${option.value}`}
+            prefixCls={prefixCls}
+            disabled={option.disabled || this.props.disabled}
+            value={option.value}
+            checked={this.state.value === option.value}
+          >
+            {option.label}
+          </Radio>
+        );
       });
     }
 
     return (
-      <div
-        className={classString}
-        style={props.style}
-        onMouseEnter={props.onMouseEnter}
-        onMouseLeave={props.onMouseLeave}
-        id={props.id}
-      >
-        {children}
-      </div>
+      <SizeContext.Consumer>
+        {size => {
+          const mergedSize = customizeSize || size;
+          const classString = classNames(
+            groupPrefixCls,
+            `${groupPrefixCls}-${buttonStyle}`,
+            {
+              [`${groupPrefixCls}-${mergedSize}`]: mergedSize,
+              [`${groupPrefixCls}-rtl`]: direction === 'rtl',
+            },
+            className,
+          );
+
+          return (
+            <div
+              className={classString}
+              style={props.style}
+              onMouseEnter={props.onMouseEnter}
+              onMouseLeave={props.onMouseLeave}
+              id={props.id}
+            >
+              {children}
+            </div>
+          );
+        }}
+      </SizeContext.Consumer>
     );
   };
 
@@ -164,5 +175,4 @@ class RadioGroup extends React.Component<RadioGroupProps, RadioGroupState> {
   }
 }
 
-polyfill(RadioGroup);
 export default RadioGroup;

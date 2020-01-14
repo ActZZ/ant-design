@@ -724,6 +724,12 @@ exports[`Badge render correct with negative number 1`] = `
 </div>
 `;
 
+exports[`Badge rtl render component should be rendered correctly in RTL direction 1`] = `
+<span
+  class="ant-badge ant-badge-not-a-wrapper ant-badge-rtl"
+/>
+`;
+
 exports[`Badge should be compatible with borderColor style 1`] = `
 <span
   class="ant-badge ant-badge-not-a-wrapper"
@@ -2907,7 +2913,9 @@ exports[`Badge should support offset when count is a ReactNode 1`] = `
   <a
     class="head-example"
     href="#"
-  />
+  >
+    head
+  </a>
   <span
     class="ant-scroll-number-custom-component custom"
     style="right:-10px;margin-top:20px;color:#f5222d"

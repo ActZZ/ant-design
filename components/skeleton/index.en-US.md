@@ -28,10 +28,11 @@ Provide a placeholder while you wait for content to load, or to visualise conten
 
 ### SkeletonAvatarProps
 
-| Property | Description             | Type                                          | Default |
-| -------- | ----------------------- | --------------------------------------------- | ------- |
-| size     | Set the size of avatar  | number \| Enum{ 'large', 'small', 'default' } | -       |
-| shape    | Set the shape of avatar | Enum{ 'circle', 'square' }                    | -       |
+| Property | Description | Type | Default |
+| --- | --- | --- | --- |
+| active | Show animation effect, only valid when used avatar independently. | boolean | false |
+| size | Set the size of avatar | number \| Enum{ 'large', 'small', 'default' } | - |
+| shape | Set the shape of avatar | Enum{ 'circle', 'square' } | - |
 
 ### SkeletonTitleProps
 
@@ -45,3 +46,18 @@ Provide a placeholder while you wait for content to load, or to visualise conten
 | --- | --- | --- | --- |
 | rows | Set the row count of paragraph | number | - |
 | width | Set the width of paragraph. When width is an Array, it can set the width of each row. Otherwise only set the last row width | number \| string \| Array<number \| string> | - |
+
+### SkeletonButtonProps
+
+| Property | Description             | Type                                 | Default |
+| -------- | ----------------------- | ------------------------------------ | ------- |
+| active   | Show animation effect   | boolean                              | false   |
+| size     | Set the size of button  | Enum{ 'large', 'small', 'default' }  | -       |
+| shape    | Set the shape of button | Enum{ 'circle', 'round', 'default' } | -       |
+
+### SkeletonInputProps
+
+| Property | Description            | Type                                | Default |
+| -------- | ---------------------- | ----------------------------------- | ------- |
+| active   | Show animation effect  | boolean                             | false   |
+| size     | Set the size of button | Enum{ 'large', 'small', 'default' } | -       |

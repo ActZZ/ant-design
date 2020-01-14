@@ -1,6 +1,11 @@
 const path = require('path');
-const CSSSplitWebpackPlugin = require('css-split-webpack-plugin').default;
-const replaceLib = require('antd-tools/lib/replaceLib');
+const replaceLib = require('@ant-design/tools/lib/replaceLib');
+const getWebpackConfig = require('@ant-design/tools/lib/getWebpackConfig');
+const { version } = require('../package.json');
+
+const isNextVersion = !version.match(/^\d+\.\d+\.\d+$/);
+
+const { webpack } = getWebpackConfig;
 
 const isDev = process.env.NODE_ENV === 'development';
 const usePreact = process.env.REACT_ENV === 'preact';
@@ -30,23 +35,24 @@ module.exports = {
     components: './components',
     docs: './docs',
     changelog: ['CHANGELOG.zh-CN.md', 'CHANGELOG.en-US.md'],
+    'components/form/v3': ['components/form/v3.zh-CN.md', 'components/form/v3.en-US.md'],
   },
   theme: './site/theme',
   htmlTemplate: './site/theme/static/template.html',
   themeConfig: {
     categoryOrder: {
       'Ant Design': 0,
-      原则: 1,
-      Principles: 1,
-      视觉: 2,
-      Visual: 2,
-      模式: 3,
-      Patterns: 3,
+      全局样式: 1,
+      'Global Styles': 1,
+      设计模式: 2,
+      'Design Patterns': 2,
       其他: 6,
       Other: 6,
       Components: 100,
+      组件: 100,
     },
     typeOrder: {
+      // Component
       General: 0,
       Layout: 1,
       Navigation: 2,
@@ -54,6 +60,7 @@ module.exports = {
       'Data Display': 4,
       Feedback: 5,
       Other: 6,
+      Deprecated: 7,
       通用: 0,
       布局: 1,
       导航: 2,
@@ -61,6 +68,13 @@ module.exports = {
       数据展示: 4,
       反馈: 5,
       其他: 6,
+      废弃: 7,
+
+      // Design
+      原则: 1,
+      Principles: 1,
+      全局规则: 2,
+      'Global Rules': 2,
     },
     docVersions: {
       '0.9.x': 'http://09x.ant.design',
@@ -97,6 +111,7 @@ module.exports = {
       antd: path.join(process.cwd(), 'index'),
       site: path.join(process.cwd(), 'site'),
       'react-router': 'react-router/umd/ReactRouter',
+      'react-intl': 'react-intl/dist',
     };
 
     // eslint-disable-next-line
@@ -121,7 +136,19 @@ module.exports = {
 
     alertBabelConfig(config.module.rules);
 
-    config.plugins.push(new CSSSplitWebpackPlugin({ size: 4000 }));
+    config.module.rules.push({
+      test: /\.mjs$/,
+      include: /node_modules/,
+      type: 'javascript/auto',
+    });
+
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        antdReproduceVersion: JSON.stringify(isNextVersion ? 'next' : 'latest'),
+      }),
+    );
+
+    delete config.module.noParse;
 
     return config;
   },

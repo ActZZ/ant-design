@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { polyfill } from 'react-lifecycles-compat';
 import classNames from 'classnames';
 import shallowEqual from 'shallowequal';
 import omit from 'omit.js';
@@ -96,18 +95,6 @@ class CheckboxGroup extends React.Component<CheckboxGroupProps, CheckboxGroupSta
     return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
   }
 
-  registerValue = (value: string) => {
-    this.setState(({ registeredValues }) => ({
-      registeredValues: [...registeredValues, value],
-    }));
-  };
-
-  cancelValue = (value: string) => {
-    this.setState(({ registeredValues }) => ({
-      registeredValues: registeredValues.filter(val => val !== value),
-    }));
-  };
-
   getOptions() {
     const { options } = this.props;
     // https://github.com/Microsoft/TypeScript/issues/7960
@@ -122,6 +109,18 @@ class CheckboxGroup extends React.Component<CheckboxGroupProps, CheckboxGroupSta
     });
   }
 
+  cancelValue = (value: string) => {
+    this.setState(({ registeredValues }) => ({
+      registeredValues: registeredValues.filter(val => val !== value),
+    }));
+  };
+
+  registerValue = (value: string) => {
+    this.setState(({ registeredValues }) => ({
+      registeredValues: [...registeredValues, value],
+    }));
+  };
+
   toggleOption = (option: CheckboxOptionType) => {
     const { registeredValues } = this.state;
     const optionIndex = this.state.value.indexOf(option.value);
@@ -134,9 +133,18 @@ class CheckboxGroup extends React.Component<CheckboxGroupProps, CheckboxGroupSta
     if (!('value' in this.props)) {
       this.setState({ value });
     }
-    const onChange = this.props.onChange;
+    const { onChange } = this.props;
     if (onChange) {
-      onChange(value.filter(val => registeredValues.indexOf(val) !== -1));
+      const options = this.getOptions();
+      onChange(
+        value
+          .filter(val => registeredValues.indexOf(val) !== -1)
+          .sort((a, b) => {
+            const indexA = options.findIndex(opt => opt.value === a);
+            const indexB = options.findIndex(opt => opt.value === b);
+            return indexA - indexB;
+          }),
+      );
     }
   };
 
@@ -148,7 +156,7 @@ class CheckboxGroup extends React.Component<CheckboxGroupProps, CheckboxGroupSta
 
     const domProps = omit(restProps, ['children', 'defaultValue', 'value', 'onChange', 'disabled']);
 
-    let children = props.children;
+    let { children } = props;
     if (options && options.length > 0) {
       children = this.getOptions().map(option => (
         <Checkbox
@@ -177,7 +185,5 @@ class CheckboxGroup extends React.Component<CheckboxGroupProps, CheckboxGroupSta
     return <ConfigConsumer>{this.renderGroup}</ConfigConsumer>;
   }
 }
-
-polyfill(CheckboxGroup);
 
 export default CheckboxGroup;

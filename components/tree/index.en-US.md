@@ -4,6 +4,8 @@ type: Data Display
 title: Tree
 ---
 
+A hierarchical list structure component.
+
 ## When To Use
 
 Almost anything can be represented in a tree structure. Examples include directories, organization hierarchies, biological classifications, countries, etc. The `Tree` component is a way of representing the hierarchical relationship between these things. You can also expand, collapse, and select a treeNode within a `Tree`.
@@ -31,11 +33,12 @@ Almost anything can be represented in a tree structure. Examples include directo
 | loadData | Load data asynchronously | function(node) | - |
 | loadedKeys | (Controlled) Set loaded tree nodes. Need work with `loadData` | string\[] | \[] |
 | multiple | Allows selecting multiple treeNodes | boolean | false |
+| selectable | whether can be selected | boolean | true |
 | selectedKeys | (Controlled) Specifies the keys of the selected treeNodes | string\[] | - |
 | showIcon | Shows the icon before a TreeNode's title. There is no default style; you must set a custom style for it if set to `true` | boolean | false |
 | switcherIcon | customize collapse/expand icon of tree node | React.ReactElement | - |
 | showLine | Shows a connecting line | boolean | false |
-| onCheck | Callback function for when the onCheck event occurs | function(checkedKeys, e:{checked: bool, checkedNodes, node, event}) | - |
+| onCheck | Callback function for when the onCheck event occurs | function(checkedKeys, e:{checked: bool, checkedNodes, node, event, halfCheckedKeys}) | - |
 | onDragEnd | Callback function for when the onDragEnd event occurs | function({event, node}) | - |
 | onDragEnter | Callback function for when the onDragEnter event occurs | function({event, node, expandedKeys}) | - |
 | onDragLeave | Callback function for when the onDragLeave event occurs | function({event, node}) | - |
@@ -46,12 +49,13 @@ Almost anything can be represented in a tree structure. Examples include directo
 | onLoad | Callback function for when a treeNode is loaded | function(loadedKeys, {event, node}) | - |
 | onRightClick | Callback function for when the user right clicks a treeNode | function({event, node}) | - |
 | onSelect | Callback function for when the user clicks a treeNode | function(selectedKeys, e:{selected: bool, selectedNodes, node, event}) | - |
+| treeData | treeNodes data Array, if set it then you need not to construct children TreeNode. (key should be unique across the whole array) | array\<{ key, title, children, \[disabled, selectable] }> | - |
 
 ### TreeNode props
 
-| Property | Description | Type | Default | Version |
-| --- | --- | --- | --- | --- |
-| checkable | When Tree is checkable, set TreeNode display Checkbox or not | boolean | - | 3.17.0 |
+| Property | Description | Type | Default |
+| --- | --- | --- | --- |
+| checkable | When Tree is checkable, set TreeNode display Checkbox or not | boolean | - |
 | disableCheckbox | Disables the checkbox of the treeNode | boolean | false |  |
 | disabled | Disables the treeNode | boolean | false |  |
 | icon | customize icon. When you pass component, whose render will receive full TreeNode props as component props | ReactNode/Function(props):ReactNode | - |  |

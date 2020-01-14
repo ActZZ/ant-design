@@ -19,11 +19,12 @@ When requiring users to interact with the application, but without jumping to a 
 | cancelText | Text of the Cancel button | string\|ReactNode | `Cancel` |
 | centered | Centered Modal | Boolean | `false` |
 | closable | Whether a close (x) button is visible on top right of the modal dialog or not | boolean | true |
+| closeIcon | custom close icon | ReactNode | - |
 | confirmLoading | Whether to apply loading visual effect for OK button or not | boolean | false |
 | destroyOnClose | Whether to unmount child components on onClose | boolean | false |
 | footer | Footer content, set as `footer={null}` when you don't need default buttons | string\|ReactNode | OK and Cancel buttons |
 | forceRender | Force render Modal | boolean | false |
-| getContainer | Return the mount node for Modal | (instance): HTMLElement | () => document.body |
+| getContainer | Return the mount node for Modal | HTMLElement \| `() => HTMLElement` \| Selectors \| false | document.body |
 | mask | Whether show mask or not. | Boolean | true |
 | maskClosable | Whether to close the modal dialog when the mask (area outside the modal) is clicked | boolean | true |
 | maskStyle | Style for modal's mask element. | object | {} |
@@ -59,12 +60,11 @@ The items listed above are all functions, expecting a settings object as paramet
 | Property | Description | Type | Default |
 | --- | --- | --- | --- |
 | autoFocusButton | Specify which button to autofocus | null\|string: `ok` `cancel` | `ok` |
-| cancelText | Text of the Cancel button | string | `Cancel` |
+| cancelText | Text of the Cancel button with Modal.confirm | string | `Cancel` |
 | centered | Centered Modal | Boolean | `false` |
 | className | className of container | string | - |
 | content | Content | string\|ReactNode | - |
-| icon | custom icon (`Added in 3.12.0`) | string\|ReactNode | `<Icon type="question-circle">` |
-| iconType | Icon `type` of the Icon component (deperated after `3.12.0`) | string | `question-circle` |
+| icon | custom icon (`Added in 3.12.0`) | ReactNode | `<QuestionCircle />` |
 | keyboard | Whether support press esc to close | Boolean | true |
 | mask | Whether show mask or not. | Boolean | true |
 | maskClosable | Whether to close the modal dialog when the mask (area outside the modal) is clicked | Boolean | `false` |

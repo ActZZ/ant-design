@@ -2,13 +2,19 @@ import React from 'react';
 import { mount } from 'enzyme';
 import Tooltip from '..';
 import Button from '../../button';
+import Switch from '../../switch';
+import Checkbox from '../../checkbox';
 import DatePicker from '../../date-picker';
 import Input from '../../input';
 import Group from '../../input/Group';
-
-const delay = timeout => new Promise(resolve => setTimeout(resolve, timeout));
+import { sleep } from '../../../tests/utils';
+import mountTest from '../../../tests/shared/mountTest';
+import rtlTest from '../../../tests/shared/rtlTest';
 
 describe('Tooltip', () => {
+  mountTest(Tooltip);
+  rtlTest(Tooltip);
+
   it('check `onVisibleChange` arguments', () => {
     const onVisibleChange = jest.fn();
 
@@ -77,28 +83,36 @@ describe('Tooltip', () => {
     expect(wrapper.instance().tooltip.props.visible).toBe(false);
   });
 
-  it('should hide when mouse leave antd disabled Button', () => {
-    const onVisibleChange = jest.fn();
-    const wrapper = mount(
-      <Tooltip
-        title="xxxxx"
-        mouseEnterDelay={0}
-        mouseLeaveDelay={0}
-        onVisibleChange={onVisibleChange}
-      >
-        <Button disabled>Hello world!</Button>
-      </Tooltip>,
-    );
+  describe('should hide when mouse leave antd disabled component', () => {
+    function testComponent(name, Component) {
+      it(name, () => {
+        const onVisibleChange = jest.fn();
+        const wrapper = mount(
+          <Tooltip
+            title="xxxxx"
+            mouseEnterDelay={0}
+            mouseLeaveDelay={0}
+            onVisibleChange={onVisibleChange}
+          >
+            <Component disabled />
+          </Tooltip>,
+        );
 
-    expect(wrapper.render()).toMatchSnapshot();
-    const button = wrapper.find('span').at(0);
-    button.simulate('mouseenter');
-    expect(onVisibleChange).toHaveBeenCalledWith(true);
-    expect(wrapper.instance().tooltip.props.visible).toBe(true);
+        expect(wrapper.render()).toMatchSnapshot();
+        const button = wrapper.find('span').at(0);
+        button.simulate('mouseenter');
+        expect(onVisibleChange).toHaveBeenCalledWith(true);
+        expect(wrapper.instance().tooltip.props.visible).toBe(true);
 
-    button.simulate('mouseleave');
-    expect(onVisibleChange).toHaveBeenCalledWith(false);
-    expect(wrapper.instance().tooltip.props.visible).toBe(false);
+        button.simulate('mouseleave');
+        expect(onVisibleChange).toHaveBeenCalledWith(false);
+        expect(wrapper.instance().tooltip.props.visible).toBe(false);
+      });
+    }
+
+    testComponent('Button', Button);
+    testComponent('Switch', Switch);
+    testComponent('Checkbox', Checkbox);
   });
 
   it('should render disabled Button style properly', () => {
@@ -192,15 +206,15 @@ describe('Tooltip', () => {
       </Tooltip>,
     );
 
-    expect(wrapper.find('span.ant-calendar-picker')).toHaveLength(1);
-    const picker = wrapper.find('span.ant-calendar-picker').at(0);
+    expect(wrapper.find('.ant-picker')).toHaveLength(1);
+    const picker = wrapper.find('.ant-picker').at(0);
     picker.simulate('mouseenter');
-    await delay(100);
+    await sleep(100);
     expect(onVisibleChange).toHaveBeenCalledWith(true);
     expect(wrapper.instance().tooltip.props.visible).toBe(true);
 
     picker.simulate('mouseleave');
-    await delay(100);
+    await sleep(100);
     expect(onVisibleChange).toHaveBeenCalledWith(false);
     expect(wrapper.instance().tooltip.props.visible).toBe(false);
   });
@@ -220,12 +234,12 @@ describe('Tooltip', () => {
     expect(wrapper.find('Group')).toHaveLength(1);
     const picker = wrapper.find('Group').at(0);
     picker.simulate('mouseenter');
-    await delay(100);
+    await sleep(100);
     expect(onVisibleChange).toHaveBeenCalledWith(true);
     expect(wrapper.instance().tooltip.props.visible).toBe(true);
 
     picker.simulate('mouseleave');
-    await delay(100);
+    await sleep(100);
     expect(onVisibleChange).toHaveBeenCalledWith(false);
     expect(wrapper.instance().tooltip.props.visible).toBe(false);
   });

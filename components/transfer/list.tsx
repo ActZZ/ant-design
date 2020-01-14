@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import omit from 'omit.js';
 import classNames from 'classnames';
 import PureRenderMixin from 'rc-util/lib/PureRenderMixin';
@@ -7,7 +6,6 @@ import Checkbox from '../checkbox';
 import { TransferItem, TransferDirection, RenderResult, RenderResultObject } from './index';
 import Search from './search';
 import defaultRenderList, { TransferListBodyProps, OmitProps } from './renderListBody';
-import triggerEvent from '../_util/triggerEvent';
 
 const defaultRender = () => null;
 
@@ -35,9 +33,6 @@ export interface TransferListProps {
   style?: React.CSSProperties;
   checkedKeys: string[];
   handleFilter: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSelect: (selectedItem: TransferItem, checked: boolean) => void;
-  /** [Legacy] Only used when `body` prop used. */
-  handleSelectAll: (dataSource: TransferItem[], checkAll: boolean) => void;
   onItemSelect: (key: string, check: boolean) => void;
   onItemSelectAll: (dataSource: string[], checkAll: boolean) => void;
   handleClear: () => void;
@@ -47,11 +42,9 @@ export interface TransferListProps {
   notFoundContent: React.ReactNode;
   itemUnit: string;
   itemsUnit: string;
-  body?: (props: TransferListProps) => React.ReactNode;
   renderList?: RenderListFunction;
   footer?: (props: TransferListProps) => React.ReactNode;
-  lazy?: boolean | {};
-  onScroll: Function;
+  onScroll: (e: React.UIEvent<HTMLUListElement>) => void;
   disabled?: boolean;
   direction: TransferDirection;
   showSelectAll?: boolean;
@@ -79,10 +72,10 @@ export default class TransferList extends React.Component<TransferListProps, Tra
     dataSource: [],
     titleText: '',
     showSearch: false,
-    lazy: {},
   };
 
   timer: number;
+
   triggerScrollTimer: number;
 
   constructor(props: TransferListProps) {
@@ -92,19 +85,20 @@ export default class TransferList extends React.Component<TransferListProps, Tra
     };
   }
 
-  componentWillUnmount() {
-    clearTimeout(this.triggerScrollTimer);
-  }
-
   shouldComponentUpdate(...args: any[]) {
     return PureRenderMixin.shouldComponentUpdate.apply(this, args);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.triggerScrollTimer);
   }
 
   getCheckStatus(filteredItems: TransferItem[]) {
     const { checkedKeys } = this.props;
     if (checkedKeys.length === 0) {
       return 'none';
-    } else if (filteredItems.every(item => checkedKeys.indexOf(item.key) >= 0 || !!item.disabled)) {
+    }
+    if (filteredItems.every(item => checkedKeys.indexOf(item.key) >= 0 || !!item.disabled)) {
       return 'all';
     }
     return 'part';
@@ -139,7 +133,6 @@ export default class TransferList extends React.Component<TransferListProps, Tra
     filterValue: string,
     filteredItems: TransferItem[],
     notFoundContent: React.ReactNode,
-    bodyDom: React.ReactNode,
     filteredRenderItems: RenderedItem[],
     checkedKeys: string[],
     renderList?: RenderListFunction,
@@ -159,41 +152,35 @@ export default class TransferList extends React.Component<TransferListProps, Tra
       </div>
     ) : null;
 
-    const searchNotFound = !filteredItems.length && (
-      <div className={`${prefixCls}-body-not-found`}>{notFoundContent}</div>
-    );
+    const { bodyContent, customize } = renderListNode(renderList, {
+      ...omit(this.props, OmitProps),
+      filteredItems,
+      filteredRenderItems,
+      selectedKeys: checkedKeys,
+    });
 
-    let listBody: React.ReactNode = bodyDom;
-    if (!listBody) {
-      let bodyNode: React.ReactNode = searchNotFound;
-      if (!bodyNode) {
-        const { bodyContent, customize } = renderListNode(renderList, {
-          ...omit(this.props, OmitProps),
-          filteredItems,
-          filteredRenderItems,
-          selectedKeys: checkedKeys,
-        });
-
-        // We should wrap customize list body in a classNamed div to use flex layout.
-        bodyNode = customize ? (
-          <div className={`${prefixCls}-body-customize-wrapper`}>{bodyContent}</div>
-        ) : (
-          bodyContent
-        );
-      }
-
-      listBody = (
-        <div
-          className={classNames(
-            showSearch ? `${prefixCls}-body ${prefixCls}-body-with-search` : `${prefixCls}-body`,
-          )}
-        >
-          {search}
-          {bodyNode}
-        </div>
+    let bodyNode: React.ReactNode;
+    // We should wrap customize list body in a classNamed div to use flex layout.
+    if (customize) {
+      bodyNode = <div className={`${prefixCls}-body-customize-wrapper`}>{bodyContent}</div>;
+    } else {
+      bodyNode = filteredItems.length ? (
+        bodyContent
+      ) : (
+        <div className={`${prefixCls}-body-not-found`}>{notFoundContent}</div>
       );
     }
-    return listBody;
+
+    return (
+      <div
+        className={classNames(
+          showSearch ? `${prefixCls}-body ${prefixCls}-body-with-search` : `${prefixCls}-body`,
+        )}
+      >
+        {search}
+        {bodyNode}
+      </div>
+    );
   }
 
   getCheckBox(
@@ -223,28 +210,18 @@ export default class TransferList extends React.Component<TransferListProps, Tra
   }
 
   handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { handleFilter } = this.props;
     const {
       target: { value: filterValue },
     } = e;
     this.setState({ filterValue });
-    this.props.handleFilter(e);
-    if (!filterValue) {
-      return;
-    }
-    // Manually trigger scroll event for lazy search bug
-    // https://github.com/ant-design/ant-design/issues/5631
-    this.triggerScrollTimer = window.setTimeout(() => {
-      const transferNode = ReactDOM.findDOMNode(this) as Element;
-      const listNode = transferNode.querySelectorAll('.ant-transfer-list-content')[0];
-      if (listNode) {
-        triggerEvent(listNode, 'scroll');
-      }
-    }, 0);
+    handleFilter(e);
   };
 
   handleClear = () => {
+    const { handleClear } = this.props;
     this.setState({ filterValue: '' });
-    this.props.handleClear();
+    handleClear();
   };
 
   matchFilter = (text: string, item: TransferItem) => {
@@ -277,7 +254,6 @@ export default class TransferList extends React.Component<TransferListProps, Tra
       titleText,
       checkedKeys,
       disabled,
-      body,
       footer,
       showSearch,
       style,
@@ -292,7 +268,6 @@ export default class TransferList extends React.Component<TransferListProps, Tra
 
     // Custom Layout
     const footerDom = footer && footer(this.props);
-    const bodyDom = body && body(this.props);
 
     const listCls = classNames(prefixCls, {
       [`${prefixCls}-with-footer`]: !!footerDom,
@@ -311,7 +286,6 @@ export default class TransferList extends React.Component<TransferListProps, Tra
       filterValue,
       filteredItems,
       notFoundContent,
-      bodyDom,
       filteredRenderItems,
       checkedKeys,
       renderList,
